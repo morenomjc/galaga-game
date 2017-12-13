@@ -6,6 +6,7 @@ import game.Game;
 import game.objects.Enemy;
 import game.objects.Explosion;
 import game.objects.Rocket;
+import game.resources.GameDataUtil;
 
 public class CollisionChecker implements Runnable {
 	private LinkedList<Enemy> enemies = new LinkedList<>();
@@ -43,6 +44,10 @@ public class CollisionChecker implements Runnable {
 						rockets.remove(rocket);
 
 						game.getRocketController().addMissiles(5);
+						
+						System.out.println("ENEMY KILLED");
+						
+						game.getPlayer().addScore(10);
 					}
 
 				}
@@ -54,6 +59,13 @@ public class CollisionChecker implements Runnable {
 
 					enemies.remove(enemy);
 					System.out.println("PLAYER COLLIDED WITH AN ENEMY");
+					
+					if(game.getPlayer().getScore() > game.getHighScore()){
+						game.setHighScore(game.getPlayer().getScore());
+						
+						GameDataUtil.writeGameData(game.getHighScore());
+					}
+					game.setState(Game.STATE.END);
 				}
 			}
 		}

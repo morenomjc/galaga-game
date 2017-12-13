@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import game.Game;
 import game.objects.Player;
 import game.objects.Rocket;
+import game.resources.GameDataUtil;
 
 public class RocketController implements Runnable, KeyListener {
 	private LinkedList<Rocket> rockets = new LinkedList<>();
@@ -27,22 +28,28 @@ public class RocketController implements Runnable, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (running && missiles > 0) {
-			Player player = game.getPlayer();
+		if (game.getState() == Game.STATE.GAME) {
+			if (running && missiles > 0) {
+				Player player = game.getPlayer();
 
-			int key = e.getKeyCode();
+				int key = e.getKeyCode();
 
-			if (key == KeyEvent.VK_SPACE) {
-				System.out.println("FIRE");
-				Rocket rocket = new Rocket(player.getX(), player.getY(), game);
-				rockets.add(rocket);
-				missiles--;
+				if (key == KeyEvent.VK_SPACE) {
+					System.out.println("FIRE");
+					Rocket rocket = new Rocket(player.getX(), player.getY(), game);
+					rockets.add(rocket);
+					missiles--;
+				}
+			} else {
+				if(game.getPlayer().getScore() > game.getHighScore()){
+					game.setHighScore(game.getPlayer().getScore());
+					
+					GameDataUtil.writeGameData(game.getHighScore());
+				}
+				game.setState(Game.STATE.END);
 			}
-			
-			System.out.println("MISSILES LEFT: " + missiles);
-		}else{
-			System.out.println("NO MORE MISSILES");
 		}
+
 	}
 
 	@Override
@@ -55,9 +62,9 @@ public class RocketController implements Runnable, KeyListener {
 		for (int i = 0; i < rockets.size(); i++) {
 			rocket = rockets.get(i);
 
-			if(rocket.getY() < 0)
+			if (rocket.getY() < 0)
 				rockets.remove(rocket);
-			
+
 			rocket.tick();
 		}
 	}
@@ -74,7 +81,7 @@ public class RocketController implements Runnable, KeyListener {
 	@Override
 	public void run() {
 		while (running) {
-			
+
 		}
 
 		stop();

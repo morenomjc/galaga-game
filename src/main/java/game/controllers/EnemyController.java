@@ -34,7 +34,7 @@ public class EnemyController implements Runnable{
 			enemy.goDown();
 		}
 		
-		if(enemies.size() < 1){
+		if(enemies.size() < 3){
 			spawnNewEnemy();
 		}
 	}
