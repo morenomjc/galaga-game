@@ -30,6 +30,7 @@ public class Enemy extends GameObj implements Runnable{
 	
 	public void goDown(){
 		setY(getY() + velocity);
+		
 		if(motion == 0){
 			goLeft();
 		}else{
@@ -88,6 +89,14 @@ public class Enemy extends GameObj implements Runnable{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int getMotion() {
+		return motion;
+	}
+
+	public void setMotion(int motion) {
+		this.motion = motion;
 	}
 	
 	

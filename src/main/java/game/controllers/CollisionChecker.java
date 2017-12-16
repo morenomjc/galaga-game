@@ -16,7 +16,8 @@ public class CollisionChecker implements Runnable {
 	private boolean running = false;
 	private Thread thread;
 
-	public CollisionChecker(LinkedList<Enemy> enemies, LinkedList<Rocket> rockets, Game game) {
+	public CollisionChecker(LinkedList<Enemy> enemies,
+			LinkedList<Rocket> rockets, Game game) {
 		super();
 		this.enemies = enemies;
 		this.rockets = rockets;
@@ -25,47 +26,53 @@ public class CollisionChecker implements Runnable {
 
 	public void checkCollissions() {
 		if (running) {
-			Rocket rocket = null;
+			synchronized (this) {
 
-			Enemy enemy = null;
-			for (int e = 0; e < enemies.size(); e++) {
-				enemy = enemies.get(e);
+				Rocket rocket = null;
+				Enemy enemy = null;
+				for (int e = 0; e < enemies.size(); e++) {
+					enemy = enemies.get(e);
 
-				for (int r = 0; r < rockets.size(); r++) {
-					rocket = rockets.get(r);
+					for (int r = 0; r < rockets.size(); r++) {
+						rocket = rockets.get(r);
 
-					// check if a rocket collided with an enemy
-					if (enemy.getBounds().intersects(rocket.getBounds())) {
+						// check if a rocket collided with an enemy
+						if (enemy.getBounds().intersects(rocket.getBounds())) {
 
-						Explosion explosion = new Explosion(enemy.getX(), enemy.getY(), game);
+							Explosion explosion = new Explosion(enemy.getX(),
+									enemy.getY(), game);
+							explosion.render(game.getGraphics());
+
+							enemy.stop();
+							enemies.remove(enemy);
+							rockets.remove(rocket);
+
+							game.getRocketController().addMissiles(3);
+
+							System.out.println("ENEMY KILLED");
+
+							game.getPlayer().addScore(10);
+						}
+
+					}
+
+					if (enemy.getBounds().intersects(
+							game.getPlayer().getBounds())) {
+
+						Explosion explosion = new Explosion(enemy.getX(),
+								enemy.getY(), game);
 						explosion.render(game.getGraphics());
 
 						enemies.remove(enemy);
-						rockets.remove(rocket);
+						System.out.println("PLAYER COLLIDED WITH AN ENEMY");
 
-						game.getRocketController().addMissiles(5);
-						
-						System.out.println("ENEMY KILLED");
-						
-						game.getPlayer().addScore(10);
+						if (game.getPlayer().getScore() > game.getHighScore()) {
+							game.setHighScore(game.getPlayer().getScore());
+
+							GameDataUtil.writeGameData(game.getHighScore());
+						}
+						game.setState(Game.STATE.END);
 					}
-
-				}
-	
-				if (enemy.getBounds().intersects(game.getPlayer().getBounds())) {
-
-					Explosion explosion = new Explosion(enemy.getX(), enemy.getY(), game);
-					explosion.render(game.getGraphics());
-
-					enemies.remove(enemy);
-					System.out.println("PLAYER COLLIDED WITH AN ENEMY");
-					
-					if(game.getPlayer().getScore() > game.getHighScore()){
-						game.setHighScore(game.getPlayer().getScore());
-						
-						GameDataUtil.writeGameData(game.getHighScore());
-					}
-					game.setState(Game.STATE.END);
 				}
 			}
 		}
@@ -76,6 +83,11 @@ public class CollisionChecker implements Runnable {
 	public void run() {
 		while (running) {
 
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		stop();
 	}

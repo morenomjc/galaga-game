@@ -18,7 +18,7 @@ public class Rocket extends GameObj{
 	}
 	
 	public void tick(){
-		setY(getY() - 10);
+		setY(getY() - 15);
 	}
 
 	@Override
